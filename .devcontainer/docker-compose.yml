@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VARIANT: "1.17"
+    volumes:
+      - ..:/workspace:cached
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+
+    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
+    networks:
+      - learn-go-hexagonal-network
+    #network_mode: service:db
+    # Uncomment the next line to use a non-root user for all processes.
+
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally. 
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  db-mysql:
+    image: mysql:8.0.27
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    volumes : 
+      - mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+    networks:
+      - learn-go-hexagonal-network
+    ports : 
+      - "3306:3306"
+
+
+volumes:
+  mongodb-data: null
+  mysql-data :  null
+
+networks:
+  learn-go-hexagonal-network:
+    driver : bridge
