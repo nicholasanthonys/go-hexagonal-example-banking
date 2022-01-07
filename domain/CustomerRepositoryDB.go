@@ -2,9 +2,6 @@ package domain
 
 import (
 	"database/sql"
-	"fmt"
-	"os"
-	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/nicholasanthonys/hexagonal-banking/errs"
@@ -57,23 +54,7 @@ func (d CustomerRepositoryDB) ById(id string) (*Customer, *errs.AppError) {
 
 }
 
-func NewCustomerRepositoryDB() CustomerRepositoryDB {
-	dbPort := os.Getenv("DB_PORT")
-	dbHost := os.Getenv("DB_HOST")
-	dbUsername := os.Getenv("DB_USERNAME")
-	dbPass := os.Getenv("DB_PASSWORD")
-	dbName := os.Getenv("DB_DATABASE_NAME")
+func NewCustomerRepositoryDB(dbClient *sqlx.DB) CustomerRepositoryDB {
 
-	dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUsername, dbPass, dbHost, dbPort, dbName)
-
-	client, err := sqlx.Open("mysql", dataSource)
-	if err != nil {
-		panic(err)
-	}
-	// See "Important settings" section.
-	client.SetConnMaxLifetime(time.Minute * 3)
-	client.SetMaxOpenConns(10)
-	client.SetMaxIdleConns(10)
-
-	return CustomerRepositoryDB{client}
+	return CustomerRepositoryDB{dbClient}
 }
